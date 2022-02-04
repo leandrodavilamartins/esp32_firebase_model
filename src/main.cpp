@@ -35,11 +35,15 @@ FirebaseConfig config;
 FirebaseJson json;
 
 unsigned long sendDataPrevMillis = 0;
+unsigned long timerDelay = 180000;
 int count = 0;
 bool signupOK = false;
 
 float temperature;
 float humidity;
+String databasePath;
+String uid;
+String tempPath;
 
 
 //////////////////////////////
@@ -102,6 +106,10 @@ void setup(){
 
  // Inicia sensor 
   dht.begin();
+
+  
+  databasePath = "/UsersData/" + uid;
+  tempPath = databasePath + "/sensor/temperature";
 }
 
 //LOOP/////////////////
@@ -111,10 +119,10 @@ void loop(){
   //int qtd = 0;
   //String caminho = "/sensor1";
   //json.set("DadoGravar",(String)qtd);
+  if (Firebase.ready() && (millis() - sendDataPrevMillis > timerDelay || sendDataPrevMillis == 0)){
+    sendDataPrevMillis = millis();
+  }
   temperature = dht.readTemperature();
-  humidity = dht.readHumidity();
-  Serial.print("Temperature: ");
-  Serial.println(temperature);
-  delay(15000);
-
+  sendFloat(tempPath, temperature);
+  delay(10000);
 }
